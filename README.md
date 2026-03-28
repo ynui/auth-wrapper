@@ -14,8 +14,8 @@ docker-compose up -d
 
 ## Services
 
-| Service | URL | Description |
-|---------|-----|-------------|
+| Service  | URL | Description |
+|----------|-----|-------------|
 | Authelia | http://localhost:9091 | Authentication portal |
 | Signup | http://localhost:8081 | User registration |
 | LLDAP | http://localhost:17170 | LDAP admin |
@@ -70,14 +70,16 @@ Generate Redis TLS certs:
 
 ### Backend (Go)
 Location: `signup/backend/`
-- `main.go` - HTTP server
-- `Dockerfile` - Container build
+- `main.go` - HTTP server with LDAP integration
+- Uses LDAP Password Modify Extended Operation (RFC 3062) for secure password handling
 
 ### Frontend
 Location: `signup/frontend/`
-- `index.html` - Signup form
+- `index.html` - Landing page (Sign Up / Sign In buttons)
+- `signup.html` - Registration form
+- `success.html` - Registration success page
 - `style.css` - Styling (includes dark mode)
-- `script.js` - Form submission
+- `script.js` - Form submission logic
 
 ## API Endpoints
 

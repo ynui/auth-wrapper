@@ -1,103 +1,81 @@
-# Agent Guidelines for Authelia Docker Setup
+# Agent Guidelines
 
 ## Project Overview
 
-This is a Docker-based authentication infrastructure consisting of:
+Docker-based authentication infrastructure:
 - **Authelia** - Authentication/authorization server
-- **LLDAP** - Lightweight LDAP server for user storage
+- **LLDAP** - Lightweight LDAP server for user storage  
 - **Redis** - Session storage
-- **Signup Service** - Custom Go backend + HTML/CSS/JS frontend for user registration
+- **Signup Service** - Go backend + HTML/CSS/JS frontend
 
 ## Directory Structure
 
 ```
-.                          # Root - Docker compose and config
+.                          # Root - Docker compose
 ├── config/                # Authelia configuration
 ├── lldap/                 # LLDAP data
-├── redis/                 # Redis data
-├── secrets/               # Passwords and keys (not in git)
+├── redis/                # Redis data
+├── secrets/              # Passwords/keys (not in git)
 ├── signup/
-│   ├── backend/           # Go service (main.go, Dockerfile)
-│   └── frontend/          # Static HTML/CSS/JS
-└── docker-compose.yml    # Container orchestration
+│   ├── backend/          # Go service (main.go)
+│   └── frontend/         # Static HTML/CSS/JS
+└── docker-compose.yml
 ```
 
 ## Build Commands
 
 ### Docker
 ```bash
-# Build and start all services
-docker-compose up -d
-
-# Rebuild a specific service
-docker-compose build signup
-docker-compose up -d signup
-
-# View logs
-docker-compose logs -f authelia
-docker-compose logs -f signup
-
-# Stop all services
-docker-compose down
-
-# Full restart
-docker-compose down && docker-compose up -d
+docker-compose up -d                    # Build & start all
+docker-compose build signup              # Rebuild signup
+docker-compose up -d signup              # Restart signup
+docker-compose logs -f signup            # View logs
+docker-compose down                      # Stop all
 ```
 
-### Signup Backend (Go)
+### Go Backend
 ```bash
 cd signup/backend
 
-# Download dependencies
-go mod download
+go mod tidy                              # Fix dependencies
+go build -o signup-service              # Build binary
+go run main.go                           # Run locally
 
-# Build
-go build -o signup-service
-
-# Run locally (requires Redis and LLDAP running)
-go run main.go
-
-# Run tests (if any)
-go test ./...
+go test ./...                           # Run all tests
+go test -run TestName -v                # Run single test
+go test -cover ./...                    # With coverage
 ```
 
-### Frontend
-No build step required - served as static files by Go backend.
+### Linting
+```bash
+go fmt ./...                            # Format code
+go vet ./...                            # Vet analysis
+```
 
-## Code Style Guidelines
+## Code Style
 
-### Go (signup/backend)
+### Go
 
 **Formatting**
-- Use `gofmt` or goimports
+- Use `gofmt` - run `go fmt ./...` before committing
 - Run `go mod tidy` after adding dependencies
-- Enable Go modules (`go.mod`)
 
 **Naming**
 - Variables: `camelCase` (e.g., `lldapURL`, `serverPort`)
-- Constants: `PascalCase` or `camelCase` (e.g., `MaxRetries`, `defaultPort`)
-- Functions: `PascalCase` (e.g., `signupHandler`, `getEnvFile`)
-- Packages: lowercase, single word (e.g., `main`)
+- Functions: `PascalCase` (e.g., `signupHandler`)
+- Packages: lowercase, single word
 
 **Types**
-- Use explicit types; avoid `var x` without type
-- Use `:=` for local variable declarations
-- Prefix with package name for exports: `func SignupHandler...`
+- Use explicit types
+- Use `:=` for local variables
 
 **Error Handling**
-- Always handle errors; don't ignore with `_`
+- Always handle errors - never ignore with `_`
 - Return errors with context: `fmt.Errorf("failed to connect: %w", err)`
 - Check errors immediately after calls
 
 **Imports**
-- Standard library first, then third-party
-- Group: stdlib, external, then project (if applicable)
-- Use `go fmt` to organize
-
-**Example Structure**
 ```go
-package main
-
 import (
     "encoding/json"
     "log"
@@ -107,148 +85,53 @@ import (
 
     "github.com/go-ldap/ldap/v3"
 )
-
-var (
-    lldapURL = getEnvFile("LDAP_URL", "ldap://lldap:3890")
-)
-
-func signupHandler(w http.ResponseWriter, r *http.Request) {
-    // Handle signup logic
-}
-
-func getEnvFile(key, defaultValue string) string {
-    filePath := os.Getenv(key + "_FILE")
-    if filePath != "" {
-        data, err := os.ReadFile(filePath)
-        if err != nil {
-            log.Printf("Warning: failed to read %s: %v", filePath, err)
-            return defaultValue
-        }
-        return strings.TrimSpace(string(data))
-    }
-    return os.Getenv(key)
-}
-
-func main() {
-    http.HandleFunc("/api/signup", signupHandler)
-    log.Printf("Starting signup service")
-    http.ListenAndServe(":8080", nil)
-}
 ```
 
 ### Frontend (HTML/CSS/JS)
 
-**General**
-- Keep HTML semantic
-- Use CSS variables for theming
-- Avoid inline styles
-
 **CSS**
-- Use CSS custom properties for colors/fonts
+- Use CSS custom properties for colors
 - Support dark mode via `prefers-color-scheme`
-- Use flexbox/grid for layout
 - Mobile-first responsive design
 
 **JavaScript**
-- Use modern ES6+ syntax
-- Use `const`/`let` instead of `var`
-- Use template literals for string interpolation
+- Modern ES6+ syntax
+- Use `const`/`let` not `var`
 - Use `async/await` for fetch calls
-
-**Example**
-```javascript
-const API_URL = '/api';
-
-function initTheme() {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.classList.toggle('dark', prefersDark);
-}
-
-document.getElementById('signupForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
-    const response = await fetch(`${API_URL}/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
-    const result = await response.json();
-    // Handle result
-});
-```
-
-### Docker
-
-- Use specific image tags (not `latest` for production)
-- Use multi-stage builds for Go services
-- Mount secrets as read-only volumes
-- Use `env_file` for environment variables
-- Include health checks where supported
-
-### Configuration Files
-
-**YAML (Authelia)**
-- Use 2-space indentation
-- Comments for non-obvious settings
-- Group related settings together
-
-**Environment Variables**
-- Use `UPPER_SNAKE_CASE`
-- Use `_FILE` suffix for file-based secrets
-- Document all variables in `.env` file
-
-## Testing
-
-Currently no tests exist in this project. When adding tests:
-
-**Go**
-```bash
-# Run all tests
-go test ./...
-
-# Run specific test
-go test -run TestSignupHandler -v
-
-# Run with coverage
-go test -cover ./...
-```
-
-**JavaScript (if adding)**
-```bash
-# Run tests with jest
-npm test
-
-# Run single test
-npm test -- --testNamePattern="signup"
-```
 
 ## Common Tasks
 
-### Add new environment variable
-1. Add to `.env` file with default value
-2. Reference in docker-compose.yml with `${VAR_NAME}`
+### Add environment variable
+1. Add to `.env` with default value
+2. Reference in docker-compose.yml: `${VAR_NAME}`
 3. Read in code using `os.Getenv()` or custom function
 
-### Add new service to Docker
-1. Add service definition to `docker-compose.yml`
-2. Create required config files
-3. Add secrets to `secrets/` folder
-4. Document in README
+### Add new service
+1. Add to `docker-compose.yml`
+2. Create config files
+3. Add secrets to `secrets/`
 
-### Update Authelia config
-1. Edit `config/configuration.yml`
-2. Restart: `docker-compose restart authelia`
-3. Check logs: `docker-compose logs authelia`
+### Debug Authelia
+```bash
+docker-compose logs -f authelia
+docker-compose restart authelia
+```
 
-## Secrets Management
+## API Endpoints
 
-- Store secrets in `secrets/` directory (not committed to git)
-- Use file-based secrets: `*_PASSWORD_FILE=/secrets/filename`
-- Generate secrets: `./generate-secrets.sh`
-- Redis certs: `./generate-certs.sh`
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | /api/signup | Create new user |
+| GET | /health | Health check |
 
 ## Environment
 
 - Docker for containerization
 - Go 1.21+ for backend
-- No build tools required for frontend (static files)
+- Frontend: static files served by Go
+
+## Important Notes
+
+- **LLDAP Password Handling**: Use LDAP Password Modify Extended Operation (RFC 3062) via `conn.PasswordModify()` - do NOT set password as plain attribute
+- Secrets stored in `secrets/` with `_FILE` suffix (e.g., `LDAP_PASSWORD_FILE=/secrets/password`)
+- Frontend files: use `.html` extension in URLs or add handlers in Go
