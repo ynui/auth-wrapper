@@ -1,0 +1,54 @@
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    env_file: .env
+    entrypoint: /entrypoint.sh
+    volumes:
+      - ./redis:/data
+      - ./redis/entrypoint.sh:/entrypoint.sh:ro
+      - ./secrets:/secrets:ro
+    restart: unless-stopped
+
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    ports:
+      - 9091:9091
+    volumes:
+      - ./config:/config
+      - ./secrets:/secrets:ro
+    env_file: .env
+    depends_on:
+      - redis
+      - lldap
+    restart: unless-stopped
+
+  lldap:
+    image: lldap/lldap:stable
+    container_name: lldap
+    ports:
+      - 17170:17170
+      - 3890:3890
+    volumes:
+      - ./lldap:/data
+      - ./secrets:/secrets:ro
+    env_file: .env
+    environment:
+      - TZ=Asia/Jerusalem
+    restart: unless-stopped
+
+  signup:
+    build: ./signup/backend
+    container_name: signup
+    ports:
+      - 8081:8080
+    volumes:
+      - ./secrets:/secrets:ro
+      - ./signup/frontend:/app/frontend:ro
+    env_file: .env
+    depends_on:
+      - lldap
+    restart: unless-stopped

@@ -1,0 +1,62 @@
+server:
+  address: "0.0.0.0:9091"
+
+theme: auto
+
+session:
+  redis:
+    host: redis
+    port: 6379
+    username: default
+  cookies:
+    - domain: YOUR_DOMAIN
+      authelia_url: https://auth.YOUR_DOMAIN
+
+storage:
+  local:
+    path: /config/db.sqlite3
+
+log:
+  level: info
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain:
+        - "auth.YOUR_DOMAIN"
+      policy: bypass
+    - domain:
+        - "test.YOUR_DOMAIN"
+        - "music.YOUR_DOMAIN"
+        - "status.YOUR_DOMAIN"
+        - "bgclock.YOUR_DOMAIN"
+        - "ask.YOUR_DOMAIN"
+      policy: one_factor
+      subject:
+        - "group:users"
+    - domain:
+        - users.YOUR_DOMAIN
+      policy: two_factor
+      subject:
+        - "group:admins"
+
+authentication_backend:
+  ldap:
+    address: ldap://lldap:3890
+    base_dn: dc=YOURDOMAIN
+    user: uid=admin,ou=people,dc=YOURDOMAIN
+    users_filter: (&({username_attribute}={input})(objectclass=person))
+    groups_filter: (member={dn})
+    attributes:
+      username: uid
+      group_name: cn
+      mail: mail
+      display_name: displayName
+
+regulation:
+  max_retries: 3
+  ban_time: 15m
+
+notifier:
+  filesystem:
+    filename: /config/notification.txt
