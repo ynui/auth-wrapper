@@ -23,18 +23,17 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     const messageEl = document.getElementById('message');
     const submitBtn = document.getElementById('submitBtn');
 
-    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
     const displayName = document.getElementById('displayName').value.trim();
-    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
     messageEl.className = 'message';
     messageEl.textContent = '';
 
-    if (!username || !email || !password) {
+    if (!email || !password) {
         showError('Please fill in all required fields');
         return;
     }
@@ -58,14 +57,13 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, firstName, lastName, displayName, email, password }),
+            body: JSON.stringify({ username: email, firstName, lastName, displayName, email, password }),
         });
 
         const data = await response.json();
 
         if (data.success) {
-            showSuccess(data.message);
-            document.getElementById('signupForm').reset();
+            window.location.href = '/success.html';
         } else {
             showError(data.message);
         }
