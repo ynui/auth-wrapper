@@ -51,15 +51,24 @@ body {
 
 .container {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
 }
 
 .card {
     background: var(--card-bg);
-    border-radius: 12px;
-    padding: 2rem;
+    border-radius: 16px;
+    padding: 2.5rem;
     box-shadow: var(--shadow);
     position: relative;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-row .form-group {
+    flex: 1;
 }
 
 .logo {
