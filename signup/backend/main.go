@@ -1,9 +1,6 @@
 package main
 
 import (
-	"crypto/rand"
-	"crypto/sha1"
-	"encoding/base64"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -31,7 +28,6 @@ type SignupResponse struct {
 
 var (
 	lldapURL       = getEnvFile("LDAP_URL", "ldap://lldap:3890")
-	lldapBaseDN    = getEnvFile("LDAP_BASE_DN", "dc=domain,dc=org")
 	lldapUsersDN   = getEnvFile("LDAP_USERS_DN", "ou=people,dc=domain,dc=org")
 	lldapAdminDN   = getEnvFile("LDAP_ADMIN_DN", "uid=admin,ou=people,dc=domain,dc=org")
 	lldapAdminPass = getEnvFile("LDAP_ADMIN_PASSWORD", "")
@@ -56,13 +52,6 @@ func getEnvFile(key, defaultValue string) string {
 		return strings.TrimSpace(string(data))
 	}
 	return getEnv(key, defaultValue)
-}
-
-func hashSSHA(password string) string {
-	salt := make([]byte, 4)
-	rand.Read(salt)
-	hash := sha1.Sum(append([]byte(password), salt...))
-	return "{SSHA}" + base64.StdEncoding.EncodeToString(append(hash[:], salt...))
 }
 
 func signupHandler(w http.ResponseWriter, r *http.Request) {
@@ -141,12 +130,21 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	addReq.Attribute("uid", []string{req.Username})
 	addReq.Attribute("mail", []string{req.Email})
 	addReq.Attribute("displayName", []string{displayName})
-	addReq.Attribute("userPassword", []string{hashSSHA(req.Password)})
 
 	err = conn.Add(addReq)
 	if err != nil {
 		log.Printf("Failed to add user: %v", err)
 		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Failed to create account"})
+		return
+	}
+
+	userDN := "uid=" + req.Username + "," + lldapUsersDN
+	pwdReq := ldap.NewPasswordModifyRequest(userDN, "", req.Password)
+	_, err = conn.PasswordModify(pwdReq)
+	if err != nil {
+		log.Printf("Failed to set password: %v", err)
+		conn.Del(ldap.NewDelRequest(userDN, nil))
+		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Failed to set password"})
 		return
 	}
 
