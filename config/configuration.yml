@@ -22,23 +22,22 @@ log:
 access_control:
   default_policy: deny
   rules:
+    # BYPASS
     - domain:
-        - "auth.YOUR_DOMAIN"
+        - auth.YOUR_DOMAIN
       policy: bypass
+    # USERS
     - domain:
-        - "test.YOUR_DOMAIN"
-        - "music.YOUR_DOMAIN"
-        - "status.YOUR_DOMAIN"
-        - "bgclock.YOUR_DOMAIN"
-        - "ask.YOUR_DOMAIN"
+        - ask.YOUR_DOMAIN
       policy: one_factor
       subject:
-        - "group:users"
+        - group:users
+    # ADMINS
     - domain:
         - users.YOUR_DOMAIN
       policy: two_factor
       subject:
-        - "group:admins"
+        - group:admins
 
 authentication_backend:
   ldap:

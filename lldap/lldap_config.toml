@@ -31,7 +31,7 @@
 #http_port = 17170
 
 ## The public URL of the server, for password reset links.
-#http_url = "http://localhost"
+http_url = "http://YOUR_DOMAIN"
 
 ## The path to the front-end assets (relative to the working directory).
 #assets_path = "./app"
