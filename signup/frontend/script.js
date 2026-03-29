@@ -10,14 +10,19 @@ function initTheme() {
     }
 }
 
-document.getElementById('themeToggle').addEventListener('click', () => {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-});
-
 initTheme();
 
-document.getElementById('signupForm').addEventListener('submit', async (e) => {
+const themeToggle = document.getElementById('themeToggle');
+if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+}
+
+const signupForm = document.getElementById('signupForm');
+if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const messageEl = document.getElementById('message');
@@ -73,7 +78,8 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Create Account';
     }
-});
+    });
+}
 
 function showError(msg) {
     const messageEl = document.getElementById('message');

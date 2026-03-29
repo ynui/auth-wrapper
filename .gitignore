@@ -5,3 +5,4 @@
 notification.txt
 secrets/
 go.sum
+.DS_Store

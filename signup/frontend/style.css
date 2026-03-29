@@ -14,22 +14,20 @@
     --input-bg: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary: #3b82f6;
-        --primary-hover: #60a5fa;
-        --background: #0f172a;
-        --card-bg: #1e293b;
-        --text: #f1f5f9;
-        --text-muted: #94a3b8;
-        --border: #334155;
-        --error-bg: #450a0a;
-        --error-border: #7f1d1d;
-        --success-bg: #052e16;
-        --success-border: #14532d;
-        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-        --input-bg: #1e293b;
-    }
+:root.dark {
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --background: #0f172a;
+    --card-bg: #1e293b;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --error-bg: #450a0a;
+    --error-border: #7f1d1d;
+    --success-bg: #052e16;
+    --success-border: #14532d;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --input-bg: #1e293b;
 }
 
 * {
@@ -105,8 +103,12 @@ body {
     display: none;
 }
 
-:root:not(.dark) .theme-toggle .icon-moon {
+:root:not(.dark) .theme-toggle .icon-sun {
     display: block;
+}
+
+:root:not(.dark) .theme-toggle .icon-moon {
+    display: none;
 }
 
 :root.dark .theme-toggle .icon-sun {
