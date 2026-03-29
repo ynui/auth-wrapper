@@ -72,7 +72,13 @@ func sendTelegramNotification(email, displayName string) {
 	body, _ := json.Marshal(payload)
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	client.Post(url, "application/json", bytes.NewBuffer(body))
+	resp, err := client.Post(url, "application/json", bytes.NewBuffer(body))
+	if err != nil {
+		log.Printf("Failed to send telegram notification: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+	log.Printf("Telegram notification sent: %s (%s)", displayName, email)
 }
 
 func signupHandler(w http.ResponseWriter, r *http.Request) {
@@ -125,6 +131,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(searchResult.Entries) > 0 {
+		log.Printf("Signup failed: username %s already exists", req.Username)
 		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Username already exists"})
 		return
 	}
@@ -154,7 +161,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = conn.Add(addReq)
 	if err != nil {
-		log.Printf("Failed to add user: %v", err)
+		log.Printf("Signup failed: could not add user %s: %v", req.Username, err)
 		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Failed to create account"})
 		return
 	}
@@ -171,6 +178,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 
 	go sendTelegramNotification(req.Email, displayName)
 
+	log.Printf("Signup successful: %s (%s)", displayName, req.Email)
 	json.NewEncoder(w).Encode(SignupResponse{Success: true, Message: "Account created successfully"})
 }
 
