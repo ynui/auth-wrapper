@@ -16,6 +16,7 @@ usage() {
     echo "  --lldap-jwt      Generate LLDAP JWT secret"
     echo "  --lldap-pass     Generate LLDAP admin password"
     echo "  --redis-pass     Generate Redis password"
+    echo "  --force          Override existing secrets"
     echo "  --help           Show this help message"
 }
 
@@ -25,6 +26,7 @@ GENERATE_STORAGE=false
 GENERATE_LLDAP_JWT=false
 GENERATE_LLDAP_PASS=false
 GENERATE_REDIS_PASS=false
+FORCE=false
 
 if [ $# -eq 0 ] || [ "$1" = "--help" ]; then
     usage
@@ -47,6 +49,7 @@ for arg in "$@"; do
         --lldap-jwt)    GENERATE_LLDAP_JWT=true ;;
         --lldap-pass)   GENERATE_LLDAP_PASS=true ;;
         --redis-pass)   GENERATE_REDIS_PASS=true ;;
+        --force)        FORCE=true ;;
         --help)         usage; exit 0 ;;
         *)
             echo "Unknown option: $arg"
@@ -60,8 +63,13 @@ generate_secret() {
     local file="$1"
     local value="$2"
     local label="$3"
-    echo "$value" > "$SECRETS_DIR/$file"
-    chmod 600 "$SECRETS_DIR/$file"
+    local path="$SECRETS_DIR/$file"
+    if [ -f "$path" ] && [ "$FORCE" != true ]; then
+        echo "$label already exists (use --force to override)"
+        return
+    fi
+    echo "$value" > "$path"
+    chmod 600 "$path"
     echo "$label saved"
 }
 
