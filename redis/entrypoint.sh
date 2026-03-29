@@ -4,5 +4,10 @@ if [ -z "$REDIS_PASSWORD_FILE" ]; then
     exit 1
 fi
 
-echo "Starting Redis with password: $PASSWORD"
+PASSWORD=$(cat "$REDIS_PASSWORD_FILE")
+if [ -z "$PASSWORD" ]; then
+    echo "Password file is empty"
+    exit 1
+fi
+
 exec redis-server --requirepass "$PASSWORD"
