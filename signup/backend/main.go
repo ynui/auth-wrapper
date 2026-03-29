@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -32,6 +35,9 @@ var (
 	lldapAdminDN   = getEnvFile("LDAP_ADMIN_DN", "uid=admin,ou=people,dc=domain,dc=org")
 	lldapAdminPass = getEnvFile("LDAP_ADMIN_PASSWORD", "")
 	serverPort     = getEnvFile("SERVER_PORT", "8080")
+
+	telegramBotToken = getEnvFile("TELEGRAM_BOT_TOKEN", "")
+	telegramChatID   = getEnvFile("TELEGRAM_CHAT_ID", "")
 )
 
 func getEnv(key, defaultValue string) string {
@@ -52,6 +58,21 @@ func getEnvFile(key, defaultValue string) string {
 		return strings.TrimSpace(string(data))
 	}
 	return getEnv(key, defaultValue)
+}
+
+func sendTelegramNotification(email, displayName string) {
+	if telegramBotToken == "" || telegramChatID == "" {
+		return
+	}
+
+	message := fmt.Sprintf("🎤 New signup: %s (%s)", displayName, email)
+	url := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", telegramBotToken)
+
+	payload := map[string]string{"chat_id": telegramChatID, "text": message}
+	body, _ := json.Marshal(payload)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	client.Post(url, "application/json", bytes.NewBuffer(body))
 }
 
 func signupHandler(w http.ResponseWriter, r *http.Request) {
@@ -147,6 +168,8 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Failed to set password"})
 		return
 	}
+
+	go sendTelegramNotification(req.Email, displayName)
 
 	json.NewEncoder(w).Encode(SignupResponse{Success: true, Message: "Account created successfully"})
 }

@@ -4,3 +4,4 @@
 *.rdb
 notification.txt
 secrets/
+go.sum
