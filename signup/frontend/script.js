@@ -23,61 +23,67 @@ if (themeToggle) {
 const signupForm = document.getElementById('signupForm');
 if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    const messageEl = document.getElementById('message');
-    const submitBtn = document.getElementById('submitBtn');
+        const messageEl = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
 
-    const email = document.getElementById('email').value.trim();
-    const firstName = document.getElementById('firstName').value.trim();
-    const lastName = document.getElementById('lastName').value.trim();
-    const displayName = document.getElementById('displayName').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+        const email = document.getElementById('email').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
-    messageEl.className = 'message';
-    messageEl.textContent = '';
+        const nameParts = name.split(/\s+/);
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(" ") || "";
 
-    if (!email || !password) {
-        showError('Please fill in all required fields');
-        return;
-    }
+        const body = { username: email, email, password };
+        if (firstName) body.firstName = firstName;
+        if (lastName) body.lastName = lastName;
 
-    if (password.length < 8) {
-        showError('Password must be at least 8 characters');
-        return;
-    }
+        messageEl.className = 'message';
+        messageEl.textContent = '';
 
-    if (password !== confirmPassword) {
-        showError('Passwords do not match');
-        return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Creating account...';
-
-    try {
-        const response = await fetch(`${API_URL}/signup`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username: email, firstName, lastName, displayName, email, password }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            window.location.href = '/success.html';
-        } else {
-            showError(data.message);
+        if (!email || !name || !password) {
+            showError('Please fill in all required fields');
+            return;
         }
-    } catch (error) {
-        showError('Unable to connect to server. Please try again.');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Account';
-    }
+
+        if (password.length < 8) {
+            showError('Password must be at least 8 characters');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showError('Passwords do not match');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account...';
+
+        try {
+            const response = await fetch(`${API_URL}/signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = '/success.html';
+            } else {
+                showError(data.message);
+            }
+        } catch (error) {
+            showError('Unable to connect to server. Please try again.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Account';
+        }
     });
 }
 

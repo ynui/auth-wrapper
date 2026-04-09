@@ -144,17 +144,28 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 			displayName = req.Username
 		}
 	}
-
-	surname := req.LastName
-	if surname == "" {
-		surname = req.Username
+	if len(displayName) > 35 {
+		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Name is too long (max 35 characters)"})
+		return
+	}
+	if len(req.FirstName) > 15 {
+		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "First name is too long (max 15 characters)"})
+		return
+	}
+	if len(req.LastName) > 15 {
+		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Last name is too long (max 15 characters)"})
+		return
 	}
 
 	addReq := ldap.NewAddRequest("uid="+req.Username+","+lldapUsersDN, nil)
 	addReq.Attribute("objectClass", []string{"person", "inetOrgPerson", "ldapPublicKey"})
 	addReq.Attribute("cn", []string{displayName})
-	addReq.Attribute("sn", []string{surname})
-	addReq.Attribute("givenName", []string{req.FirstName})
+	if req.LastName != "" {
+		addReq.Attribute("sn", []string{req.LastName})
+	}
+	if req.FirstName != "" {
+		addReq.Attribute("givenName", []string{req.FirstName})
+	}
 	addReq.Attribute("uid", []string{req.Username})
 	addReq.Attribute("mail", []string{req.Email})
 	addReq.Attribute("displayName", []string{displayName})
