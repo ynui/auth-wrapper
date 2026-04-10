@@ -42,6 +42,7 @@ services:
     restart: unless-stopped
 
   signup:
+    # image: ynui12/signup-service:latest
     build: ./signup/backend
     container_name: signup
     ports:
