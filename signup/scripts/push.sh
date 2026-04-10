@@ -19,6 +19,6 @@ echo "Logging in to Docker Hub..."
 docker login
 
 echo "Building ${TAG} for ${PLATFORMS}..."
-docker buildx build --platform $PLATFORMS -t "$TAG" "${SIGNUP_DIR}/backend" --push
+docker buildx build --platform $PLATFORMS -t "$TAG" "${SIGNUP_DIR}" --push
 
 echo "Done! Image: ${TAG}"

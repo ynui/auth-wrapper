@@ -5,10 +5,11 @@ ARG TARGETARCH
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY backend/go.mod ./
 RUN go mod download
 
-COPY . .
+COPY backend/. .
+COPY frontend/. ./frontend
 RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o signup-service .
 
@@ -18,6 +19,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 COPY --from=builder /app/signup-service .
+COPY --from=builder /app/frontend ./frontend
 
 EXPOSE 8080
 

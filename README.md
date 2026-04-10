@@ -73,6 +73,16 @@ Location: `signup/backend/`
 - `main.go` - HTTP server with LDAP integration
 - Uses LDAP Password Modify Extended Operation (RFC 3062) for secure password handling
 
+Build locally:
+```bash
+cd signup && docker build -t signup-service .
+```
+
+Push to Docker Hub:
+```bash
+./signup/scripts/push.sh [version]  # Default: latest
+```
+
 ### Frontend
 Location: `signup/frontend/`
 - `index.html` - Landing page (Sign Up / Sign In buttons)

@@ -9,8 +9,8 @@ session:
     port: 6379
     username: default
   cookies:
-    - domain: YOUR_DOMAIN
-      authelia_url: https://auth.YOUR_DOMAIN
+    - domain: example.com
+      authelia_url: https://auth.example.com
 
 storage:
   local:
@@ -24,17 +24,17 @@ access_control:
   rules:
     # BYPASS
     - domain:
-        - auth.YOUR_DOMAIN
+        - auth.example.com
       policy: bypass
     # USERS
     - domain:
-        - ask.YOUR_DOMAIN
+        - ask.example.com
       policy: one_factor
       subject:
         - group:users
     # ADMINS
     - domain:
-        - users.YOUR_DOMAIN
+        - users.example.com
       policy: two_factor
       subject:
         - group:admins
@@ -42,8 +42,8 @@ access_control:
 authentication_backend:
   ldap:
     address: ldap://lldap:3890
-    base_dn: dc=YOURDOMAIN
-    user: uid=admin,ou=people,dc=YOURDOMAIN
+    base_dn: dc=example,dc=com
+    user: uid=admin,ou=people,dc=example,dc=com
     users_filter: (&({username_attribute}={input})(objectclass=person))
     groups_filter: (member={dn})
     attributes:

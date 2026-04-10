@@ -18,7 +18,9 @@ Docker-based authentication infrastructure:
 ├── secrets/              # Passwords/keys (not in git)
 ├── signup/
 │   ├── backend/          # Go service (main.go)
-│   └── frontend/         # Static HTML/CSS/JS
+│   ├── frontend/         # Static HTML/CSS/JS
+│   ├── scripts/          # Deployment scripts (push.sh)
+│   └── Dockerfile        # Multi-stage build
 └── docker-compose.yml
 ```
 
@@ -31,6 +33,15 @@ docker-compose build signup              # Rebuild signup
 docker-compose up -d signup              # Restart signup
 docker-compose logs -f signup            # View logs
 docker-compose down                      # Stop all
+```
+
+### Build & Push Image
+```bash
+# Local build (automatic with docker-compose up -d)
+cd signup && docker build -t signup-service .
+
+# Push to Docker Hub (multi-arch)
+./signup/scripts/push.sh [version]       # Default: latest
 ```
 
 ### Go Backend

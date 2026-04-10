@@ -4,7 +4,7 @@ services:
     container_name: redis
     ports:
       - 6379:6379
-    env_file: .env
+    env_file: .env.example
     entrypoint: /entrypoint.sh
     volumes:
       - ./redis:/data
@@ -21,7 +21,7 @@ services:
     volumes:
       - ./config:/config
       - ./secrets:/secrets:ro
-    env_file: .env
+    env_file: .env.example
     depends_on:
       - redis
       - lldap
@@ -36,7 +36,7 @@ services:
     volumes:
       - ./lldap:/data
       - ./secrets:/secrets:ro
-    env_file: .env
+    env_file: .env.example
     environment:
       - TZ=Asia/Jerusalem
     restart: unless-stopped
@@ -49,7 +49,7 @@ services:
       - 8081:8080
     volumes:
       - ./secrets:/secrets:ro
-    env_file: .env
+    env_file: .env.example
     depends_on:
       - lldap
     restart: unless-stopped
