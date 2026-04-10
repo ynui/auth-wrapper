@@ -19,7 +19,7 @@ services:
     ports:
       - 9091:9091
     volumes:
-      - ./config:/config
+      - ./authelia:/config
       - ./secrets:/secrets:ro
     env_file: .env
     depends_on:
