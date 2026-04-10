@@ -16,6 +16,7 @@
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 40px -10px rgb(0 0 0 / 0.15);
     --input-bg: #ffffff;
+    --particle-color: rgba(37, 99, 235, 0.15);
 }
 
 :root.dark {
@@ -36,6 +37,7 @@
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
     --shadow-lg: 0 10px 40px -10px rgb(0 0 0 / 0.5);
     --input-bg: #1e293b;
+    --particle-color: rgba(59, 130, 246, 0.2);
 }
 
 * {
@@ -47,15 +49,22 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     background: var(--background);
-    background-image: 
-        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
     color: var(--text);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    overflow: hidden;
+}
+
+#particles-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }
 
 .container {
@@ -158,31 +167,133 @@ h1 {
 }
 
 .form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
     position: relative;
 }
 
-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
+.floating-label {
+    position: relative;
+}
+
+.floating-label label {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: all 0.2s ease;
+    background: transparent;
+    padding: 0 0.25rem;
+    margin: 0;
+}
+
+.floating-label input {
+    padding-top: 1.25rem;
+    padding-bottom: 0.5rem;
+}
+
+.floating-label input:focus ~ label,
+.floating-label input:not(:placeholder-shown) ~ label {
+    top: 0.5rem;
+    transform: translateY(0);
+    font-size: 0.75rem;
+    color: var(--primary);
+    background: var(--card-bg);
+}
+
+.floating-label input:focus ~ label {
+    color: var(--primary);
+}
+
+.floating-label input.valid ~ label {
+    color: var(--success-text);
+}
+
+.floating-label input.invalid ~ label {
+    color: var(--error-text);
+}
+
+.floating-label input:focus ~ label {
+    background: var(--card-bg);
+}
+
+.validation-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.validation-icon.show {
+    opacity: 1;
+}
+
+.validation-icon.valid {
+    color: var(--success-text);
+}
+
+.validation-icon.invalid {
+    color: var(--error-text);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 2.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    width: auto;
+    margin: 0;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
     color: var(--text);
+    background: transparent;
+    transform: translateY(-50%);
 }
 
-.input-wrapper {
-    position: relative;
+.password-toggle .icon-eye-off {
+    display: none;
+}
+
+.password-toggle.show-pass .icon-eye {
+    display: none;
+}
+
+.password-toggle.show-pass .icon-eye-off {
+    display: block;
 }
 
 input {
     width: 100%;
     padding: 0.875rem 1rem;
+    padding-right: 3.5rem;
     border: 2px solid var(--border);
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
     background: var(--input-bg);
     color: var(--text);
+}
+
+input.valid {
+    border-color: var(--success-text);
+}
+
+input.invalid {
+    border-color: var(--error-text);
 }
 
 input:focus {
@@ -206,7 +317,7 @@ input.error {
     75% { transform: translateX(8px); }
 }
 
-button {
+button[type="submit"] {
     width: 100%;
     padding: 1rem 1.5rem;
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
@@ -222,7 +333,7 @@ button {
     overflow: hidden;
 }
 
-button::before {
+button[type="submit"]::before {
     content: '';
     position: absolute;
     top: 0;
@@ -233,26 +344,37 @@ button::before {
     transition: left 0.5s;
 }
 
-button:hover::before {
+button[type="submit"]:hover::before {
     left: 100%;
 }
 
-button:hover {
+button[type="submit"]:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px -4px var(--primary-glow);
 }
 
-button:active {
+button[type="submit"]:active {
     transform: translateY(0);
 }
 
-button:disabled {
-    opacity: 0.7;
+button[type="submit"]:disabled {
+    background: var(--border);
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
 }
 
-button .spinner {
+button[type="submit"]:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+button[type="submit"]:disabled::before {
+    display: none;
+}
+
+button[type="submit"] .spinner {
     display: none;
     width: 20px;
     height: 20px;
@@ -262,11 +384,11 @@ button .spinner {
     animation: spin 0.8s linear infinite;
 }
 
-button.loading .btn-text {
+button[type="submit"].loading .btn-text {
     display: none;
 }
 
-button.loading .spinner {
+button[type="submit"].loading .spinner {
     display: inline-block;
 }
 
@@ -344,4 +466,14 @@ button.loading .spinner {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
 }
