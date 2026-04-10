@@ -9,17 +9,12 @@
         .success-page {
             text-align: center;
         }
-        .success-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 1.5rem;
-            color: #22c55e;
-        }
         .success-page h1 {
             margin-bottom: 1rem;
         }
         .success-page p {
             color: var(--text-muted);
+            font-size: 1.05rem;
         }
     </style>
 </head>
@@ -32,10 +27,17 @@
                     <polyline points="22 4 12 14.01 9 11.01"/>
                 </svg>
             </div>
-            <h1>Account Created!</h1>
+            <h1 id="greeting">Account Created!</h1>
             <p>Your account has been created successfully.</p>
         </div>
     </div>
     <script src="script.js"></script>
+    <script>
+        const firstName = sessionStorage.getItem('signupFirstName');
+        if (firstName) {
+            document.getElementById('greeting').textContent = 'Welcome, ' + firstName + '!';
+            sessionStorage.removeItem('signupFirstName');
+        }
+    </script>
 </body>
 </html>

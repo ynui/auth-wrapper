@@ -60,7 +60,7 @@ if (signupForm) {
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
+        submitBtn.classList.add('loading');
 
         try {
             const response = await fetch(`${API_URL}/signup`, {
@@ -74,6 +74,7 @@ if (signupForm) {
             const data = await response.json();
 
             if (data.success) {
+                sessionStorage.setItem('signupFirstName', firstName);
                 window.location.href = '/success.html';
             } else {
                 showError(data.message);
@@ -82,7 +83,7 @@ if (signupForm) {
             showError('Unable to connect to server. Please try again.');
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Create Account';
+            submitBtn.classList.remove('loading');
         }
     });
 }
