@@ -1,16 +1,18 @@
-.PHONY: help up down logs restart build clean ps
+.PHONY: help up down logs build
+
+COMPOSE_FILE ?= docker-compose.yml
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
-up: ## Start all services
-	docker compose up -d
+up: ## Start services
+	docker compose -f $(COMPOSE_FILE) up -d
 
-down: ## Stop all services
-	docker compose down
+down: ## Stop services
+	docker compose -f $(COMPOSE_FILE) down
 
-logs: ## Tail all logs
-	docker compose logs -f
+logs: ## Tail logs
+	docker compose -f $(COMPOSE_FILE) logs -f
 
-build: ## Build all services
-	docker compose build
+build: ## Build services
+	docker compose -f $(COMPOSE_FILE) build

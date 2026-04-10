@@ -42,8 +42,7 @@ services:
     restart: unless-stopped
 
   signup:
-    # image: ynui12/signup-service:latest
-    build: ./signup
+    image: ynui12/signup-service:latest
     container_name: signup
     ports:
       - 8081:8080
