@@ -95,6 +95,8 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	req.Email = strings.ToLower(req.Email)
+
 	if req.Username == "" || req.Password == "" || req.Email == "" {
 		json.NewEncoder(w).Encode(SignupResponse{Success: false, Message: "Username, email, and password are required"})
 		return

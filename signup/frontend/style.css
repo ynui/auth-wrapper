@@ -19,6 +19,37 @@
     --particle-color: rgba(37, 99, 235, 0.15);
 }
 
+/* Override browser autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+    -webkit-text-fill-color: var(--text) !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+}
+
+input:-webkit-autofill ~ label {
+    top: 0.5rem !important;
+    transform: translateY(0) !important;
+    font-size: 0.75rem !important;
+    color: var(--primary) !important;
+    background: var(--card-bg) !important;
+}
+
+input:-webkit-autofill.valid {
+    border-color: var(--success-text) !important;
+}
+
+input:-webkit-autofill.invalid {
+    border-color: var(--error-text) !important;
+}
+
+input:-webkit-autofill:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px var(--primary-glow) !important;
+}
+
 :root.dark {
     --primary: #3b82f6;
     --primary-hover: #60a5fa;
@@ -38,6 +69,37 @@
     --shadow-lg: 0 10px 40px -10px rgb(0 0 0 / 0.5);
     --input-bg: #1e293b;
     --particle-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Dark mode autofill overrides */
+:root.dark input:-webkit-autofill,
+:root.dark input:-webkit-autofill:hover,
+:root.dark input:-webkit-autofill:focus,
+:root.dark input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+    -webkit-text-fill-color: var(--text) !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+}
+
+:root.dark input:-webkit-autofill ~ label {
+    top: 0.5rem !important;
+    transform: translateY(0) !important;
+    font-size: 0.75rem !important;
+    color: var(--primary) !important;
+    background: var(--card-bg) !important;
+}
+
+:root.dark input:-webkit-autofill.valid {
+    border-color: var(--success-text) !important;
+}
+
+:root.dark input:-webkit-autofill.invalid {
+    border-color: var(--error-text) !important;
+}
+
+:root.dark input:-webkit-autofill:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px var(--primary-glow) !important;
 }
 
 * {

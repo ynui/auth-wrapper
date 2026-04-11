@@ -36,7 +36,8 @@ const validationRules = {
     email: (value) => {
         if (!value) return null;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(value) ? 'valid' : 'invalid';
+        const lowerValue = value.toLowerCase();
+        return emailRegex.test(lowerValue) ? 'valid' : 'invalid';
     },
     name: (value) => {
         if (!value) return null;
@@ -59,7 +60,12 @@ const iconSVG = {
 };
 
 function updateSubmitButton() {
-    const email = document.getElementById('email')?.value.trim() || '';
+    const emailInput = document.getElementById('email');
+    const email = emailInput?.value.trim().toLowerCase() || '';
+    if (emailInput) {
+        emailInput.value = email;
+    }
+    
     const name = document.getElementById('name')?.value.trim() || '';
     const password = document.getElementById('password')?.value || '';
     const confirmPassword = document.getElementById('confirmPassword')?.value || '';
@@ -123,7 +129,10 @@ if (signupForm) {
         const messageEl = document.getElementById('message');
         const submitBtn = document.getElementById('submitBtn');
 
-        const email = document.getElementById('email').value.trim();
+                const emailInput = document.getElementById('email');
+        const email = emailInput.value.trim().toLowerCase();
+        emailInput.value = email;
+        
         const name = document.getElementById('name').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
